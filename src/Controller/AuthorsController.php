@@ -58,7 +58,13 @@ class AuthorsController extends AppController
         $author = $this->Authors->newEmptyEntity();
         $this->Authorization->authorize($author);
         if ($this->request->is('post')) {
-            $author = $this->Authors->patchEntity($author, $this->request->getData());
+            $authorData = $this->request->getData();
+            $file = $authorData['image'];
+            $filename = date("YmdHis").$file->getClientFilename();
+            $destination = WWW_ROOT. 'img/' . $filename;
+            $file->moveTo($destination);
+            $authorData['image'] = $filename;
+            $author = $this->Authors->patchEntity($author, $authorData);
             if ($this->Authors->save($author)) {
                 $this->Flash->success(__('作者の保存に成功しました'));
 

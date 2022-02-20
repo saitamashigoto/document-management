@@ -7,6 +7,9 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use ArrayObject;
+use Cake\Datasource\EntityInterface;
+use Cake\Event\EventInterface;
 
 /**
  * Authors Model
@@ -78,6 +81,18 @@ class AuthorsTable extends Table
             ->add('email', 'validFormat', [
                 'rule' => 'email',
                 'message' => '無効なメールアドレスです。'
+            ]);
+        
+        $validator
+            ->notEmptyFile('image', '必須項目', 'create')
+            ->add('image', 'file', [
+                'rule' => function ($value, $context) {
+                    
+                    $mimeType = $value->getClientMediaType();
+                    return in_array($mimeType, ['image/jpeg', 'image/png']);
+                },
+                'on' => 'create',
+                'message' => 'JPEG か PNG 形式のファイルを選択してください'
             ]);
 
         $validator

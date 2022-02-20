@@ -12,6 +12,7 @@
             <thead>
                 <tr>
                     <th><?= $this->Paginator->sort('name', '名前') ?></th>
+                    <th><?= $this->Paginator->sort('image', '画像') ?></th>
                     <th><?= $this->Paginator->sort('email', 'メールアドレス') ?></th>
                     <th><?= $this->Paginator->sort('created', '作成日時') ?></th>
                     <th><?= $this->Paginator->sort('modified', '更新日時') ?></th>
@@ -22,6 +23,7 @@
                 <?php foreach ($authors as $author): ?>
                 <tr>
                     <td><?= h($author->name) ?></td>
+                    <td><?= $this->Html->image($author->image, array('height' => 100, 'width' => 100)) ?></td>
                     <td><?= h($author->email) ?></td>
                     <td><?= h($author->created) ?></td>
                     <td><?= h($author->modified) ?></td>

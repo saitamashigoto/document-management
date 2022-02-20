@@ -29,6 +29,7 @@ class Book extends Entity
      */
     protected $_accessible = [
         'title' => true,
+        'image' => true,
         'description' => true,
         'created' => true,
         'modified' => true,

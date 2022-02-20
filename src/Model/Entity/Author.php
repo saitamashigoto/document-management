@@ -30,6 +30,7 @@ class Author extends Entity
      */
     protected $_accessible = [
         'name' => true,
+        'image' => true,
         'email' => true,
         'description' => true,
         'created' => true,

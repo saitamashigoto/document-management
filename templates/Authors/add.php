@@ -14,7 +14,7 @@
     </aside>
     <div class="column-responsive column-80">
         <div class="authors form content">
-            <?= $this->Form->create($author) ?>
+            <?= $this->Form->create($author, ['type' => 'file']) ?>
             <fieldset>
                 <legend><?= __('新規追加') ?></legend>
                 <?php
@@ -22,6 +22,8 @@
                     echo $this->Form->control('email', ['label' => 'メールアドレス']);
                     echo $this->Form->control('description', ['label' => '自己紹介']);
                     echo $this->Form->control('books._ids', ['options' => $books, 'label' => '著書']);
+                    echo $this->Form->file('image');
+                    echo $this->Form->error('image');
                 ?>
             </fieldset>
             <?= $this->Form->button(__('保存')) ?>
