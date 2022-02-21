@@ -7,9 +7,12 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Validation\Validation;
 use ArrayObject;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
+use Laminas\Diactoros\StreamFactory;
+use Laminas\Diactoros\UploadedFileFactory;
 
 /**
  * Authors Model
@@ -84,15 +87,14 @@ class AuthorsTable extends Table
             ]);
         
         $validator
-            ->notEmptyFile('image', '必須項目', 'create')
-            ->add('image', 'file', [
+            ->add('image', 'validate_image', [
                 'rule' => function ($value, $context) {
-                    
-                    $mimeType = $value->getClientMediaType();
-                    return in_array($mimeType, ['image/jpeg', 'image/png']);
+                    $isEmpty = $this->checkEmptyFile($value);
+                    if (true === $isEmpty) {
+                        return $this->checkImageMimeType($value);                
+                    }
+                    return $isEmpty;
                 },
-                'on' => 'create',
-                'message' => 'JPEG か PNG 形式のファイルを選択してください'
             ]);
 
         $validator
@@ -102,5 +104,23 @@ class AuthorsTable extends Table
             ->notEmptyString('description', '必須項目');
 
         return $validator;
+    }
+
+    protected function checkEmptyFile($value)
+    {
+        if (empty($value)) {
+            return '必須項目';
+        }
+        return true;
+    }
+
+    protected function checkImageMimeType($value)
+    {
+        $stream = (new StreamFactory())->createStreamFromFile(WWW_ROOT . 'img/' . $value);
+        $file = (new UploadedFileFactory)->createUploadedFile($stream);
+        if (!Validation::mimeType($file, ['image/jpeg', 'image/png'])) {
+            return 'JPEG か PNG 形式のファイルを選択してください';
+        }
+        return true;
     }
 }

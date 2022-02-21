@@ -23,10 +23,6 @@
                     <td><?= h($author->name) ?></td>
                 </tr>
                 <tr>
-                    <th><?= __('画像') ?></th>
-                    <td><?= $this->Html->image($author->image, array('height' => 100, 'width' => 100)) ?></td>
-                </tr>
-                <tr>
                     <th><?= __('メールアドレス') ?></th>
                     <td><?= h($author->email) ?></td>
                 </tr>
@@ -41,6 +37,10 @@
                 <tr>
                     <th><?= __('更新日時') ?></th>
                     <td><?= h($author->modified) ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('画像') ?></th>
+                    <td><?= $this->Html->image($author->image, array('height' => 100, 'width' => 100)) ?></td>
                 </tr>
             </table>
             <div class="text">

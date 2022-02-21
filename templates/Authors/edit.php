@@ -27,7 +27,11 @@
                     echo $this->Form->control('email', ['label' => 'メールアドレス']);
                     echo $this->Form->control('description', ['label' => '自己紹介']);
                     echo $this->Form->control('books._ids', ['options' => $books, 'label' => '著書']);
-                    echo $this->Form->file('image');
+                    if (!empty($author->image)) {
+                        echo '<div>'.$this->Html->image($author->image, array('height' => 100, 'width' => 100)) . '</div>';
+                    }
+                    echo $this->Form->file('change_image', ['required' => false]);
+                    echo $this->Form->error('image');
                 ?>
             </fieldset>
             <?= $this->Form->button(__('保存')) ?>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Psr\Http\Message\UploadedFileInterface;
 
 /**
  * Authors Controller
@@ -59,15 +60,13 @@ class AuthorsController extends AppController
         $this->Authorization->authorize($author);
         if ($this->request->is('post')) {
             $authorData = $this->request->getData();
-            $file = $authorData['image'];
-            $filename = date("YmdHis").$file->getClientFilename();
-            $destination = WWW_ROOT. 'img/' . $filename;
-            $file->moveTo($destination);
+            $file = $authorData['image'];   
+            $filename = $this->moveUploadedFile($file);    
             $authorData['image'] = $filename;
+            $this->moveUploadedFile($authorData);
             $author = $this->Authors->patchEntity($author, $authorData);
             if ($this->Authors->save($author)) {
                 $this->Flash->success(__('作者の保存に成功しました'));
-
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('作者を保存できませんでした'));
@@ -91,7 +90,14 @@ class AuthorsController extends AppController
             ]);
             $this->Authorization->authorize($author);
             if ($this->request->is(['patch', 'post', 'put'])) {
-                $author = $this->Authors->patchEntity($author, $this->request->getData());
+                $authorData = $this->request->getData();
+                $file = $authorData['change_image'];
+                if ($file->getError() === UPLOAD_ERR_OK) {
+                    $filename = $this->moveUploadedFile($file);
+                    $authorData['image'] = $filename;
+                }
+                unset($authorData['change_image']);
+                $author = $this->Authors->patchEntity($author, $authorData);
                 if ($this->Authors->save($author)) {
                     $this->Flash->success(__('作者の更新に成功しました'));
     
@@ -130,5 +136,13 @@ class AuthorsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    protected function moveUploadedFile($file)
+    {
+        $filename = date("YmdHis").$file->getClientFilename();
+        $destination = WWW_ROOT. 'img/' . $filename;
+        $file->moveTo($destination);
+        return $filename;
     }
 }
