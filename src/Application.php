@@ -165,6 +165,7 @@ class Application extends BaseApplication implements
      */
     public function services(ContainerInterface $container): void
     {
+        $container->add(ImageServiceInterface::class, ImageService::class);
     }
 
     /**

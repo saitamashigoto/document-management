@@ -11,8 +11,8 @@ use Cake\Validation\Validation;
 use ArrayObject;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
-use Laminas\Diactoros\StreamFactory;
-use Laminas\Diactoros\UploadedFileFactory;
+use App\ImageServiceInterface;
+use App\ImageService;
 
 /**
  * Authors Model
@@ -68,6 +68,7 @@ class AuthorsTable extends Table
      */
     public function validationDefault(Validator $validator): Validator
     {
+        $imageService = ImageService::getInstance();
         $validator
             ->integer('id')
             ->allowEmptyString('id', null, 'create');
@@ -88,10 +89,15 @@ class AuthorsTable extends Table
         
         $validator
             ->add('image', 'validate_image', [
-                'rule' => function ($value, $context) {
-                    $isEmpty = $this->checkEmptyFile($value);
+                'rule' => function ($value, $context) use ($imageService) {
+                    $isEmpty = $imageService->validateEmptyFile($value);
                     if (true === $isEmpty) {
-                        return $this->checkImageMimeType($value);                
+                        $isValid = $imageService->validateMimeType($value);
+                        if (true === $isValid) {
+                            return true;
+                        }
+                        $imageService->deleteFile($value);
+                        return $isValid;                
                     }
                     return $isEmpty;
                 },
@@ -104,23 +110,5 @@ class AuthorsTable extends Table
             ->notEmptyString('description', '必須項目');
 
         return $validator;
-    }
-
-    protected function checkEmptyFile($value)
-    {
-        if (empty($value)) {
-            return '必須項目';
-        }
-        return true;
-    }
-
-    protected function checkImageMimeType($value)
-    {
-        $stream = (new StreamFactory())->createStreamFromFile(WWW_ROOT . 'img/' . $value);
-        $file = (new UploadedFileFactory)->createUploadedFile($stream);
-        if (!Validation::mimeType($file, ['image/jpeg', 'image/png'])) {
-            return 'JPEG か PNG 形式のファイルを選択してください';
-        }
-        return true;
     }
 }

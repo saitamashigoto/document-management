@@ -5,6 +5,8 @@ namespace App\Controller;
 
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Psr\Http\Message\UploadedFileInterface;
+use Cake\Event\EventInterface;
+use App\ImageServiceInterface;
 
 /**
  * Authors Controller
@@ -54,16 +56,15 @@ class AuthorsController extends AppController
      *
      * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
      */
-    public function add()
+    public function add(ImageServiceInterface $imageService)
     {
         $author = $this->Authors->newEmptyEntity();
         $this->Authorization->authorize($author);
         if ($this->request->is('post')) {
             $authorData = $this->request->getData();
-            $file = $authorData['image'];   
-            $filename = $this->moveUploadedFile($file);    
+            $file = $authorData['image'];
+            $filename = $imageService->moveFile($file);
             $authorData['image'] = $filename;
-            $this->moveUploadedFile($authorData);
             $author = $this->Authors->patchEntity($author, $authorData);
             if ($this->Authors->save($author)) {
                 $this->Flash->success(__('作者の保存に成功しました'));
@@ -82,7 +83,7 @@ class AuthorsController extends AppController
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function edit(ImageServiceInterface $imageService, $id = null)
     {
         try {
             $author = $this->Authors->get($id, [
@@ -93,8 +94,12 @@ class AuthorsController extends AppController
                 $authorData = $this->request->getData();
                 $file = $authorData['change_image'];
                 if ($file->getError() === UPLOAD_ERR_OK) {
-                    $filename = $this->moveUploadedFile($file);
-                    $authorData['image'] = $filename;
+                    $filename = $imageService->moveFile($file);
+                    $isValid = $imageService->validateMimeType($authorData['image']);
+                    if (true === $isValid) {
+                        $imageService->deleteFile($authorData['image']);
+                        $authorData['image'] = $filename;
+                    }
                 }
                 unset($authorData['change_image']);
                 $author = $this->Authors->patchEntity($author, $authorData);
@@ -136,13 +141,5 @@ class AuthorsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
-    }
-
-    protected function moveUploadedFile($file)
-    {
-        $filename = date("YmdHis").$file->getClientFilename();
-        $destination = WWW_ROOT. 'img/' . $filename;
-        $file->moveTo($destination);
-        return $filename;
     }
 }
