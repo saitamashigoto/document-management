@@ -92,13 +92,16 @@ class AuthorsController extends AppController
             $this->Authorization->authorize($author);
             if ($this->request->is(['patch', 'post', 'put'])) {
                 $authorData = $this->request->getData();
+                $authorM = $this->Authors->findByEmail($authorData['email'])->firstOrFail();
                 $file = $authorData['change_image'];
                 if ($file->getError() === UPLOAD_ERR_OK) {
                     $filename = $imageService->moveFile($file);
-                    $isValid = $imageService->validateMimeType($authorData['image']);
+                    $isValid = $imageService->validateMimeType($filename);
                     if (true === $isValid) {
-                        $imageService->deleteFile($authorData['image']);
+                        $imageService->deleteFile($authorM->image);
                         $authorData['image'] = $filename;
+                    } else {
+                        $imageService->deleteFile($filename);
                     }
                 }
                 unset($authorData['change_image']);
