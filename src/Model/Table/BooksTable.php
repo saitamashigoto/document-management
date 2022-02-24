@@ -7,6 +7,12 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Validation\Validation;
+use ArrayObject;
+use Cake\Datasource\EntityInterface;
+use Cake\Event\EventInterface;
+use App\ImageServiceInterface;
+use App\ImageService;
 
 /**
  * Books Model
@@ -62,6 +68,7 @@ class BooksTable extends Table
      */
     public function validationDefault(Validator $validator): Validator
     {
+        $imageService = ImageService::getInstance();
         $validator
             ->integer('id')
             ->allowEmptyString('id', null, 'create');
@@ -86,6 +93,22 @@ class BooksTable extends Table
                     return false === empty($value['_ids']);
                 },
                 'message' => '必須項目'
+            ]);
+        
+        $validator
+            ->add('image', 'validate_image', [
+                'rule' => function ($value, $context) use ($imageService) {
+                    $isNotEmpty = $imageService->validateEmptyFile($value);
+                    if (true === $isNotEmpty) {
+                        $isValid = $imageService->validateMimeType($value);
+                        if (true === $isValid) {
+                            return true;
+                        }
+                        $imageService->deleteFile($value);
+                        return $isValid; 
+                    }
+                    return $isEmpty;
+                },
             ]);
 
         return $validator;

@@ -30,7 +30,7 @@ class ImageService implements ImageServiceInterface
 
     public function validateEmptyFile(string $filename)
     {
-        if (empty($value)) {
+        if (empty($filename)) {
             return '必須項目';
         }
         return true;
@@ -51,7 +51,10 @@ class ImageService implements ImageServiceInterface
     
     public function deleteFile(string $filename)
     {
-        unlink($this->getDirectoryAbsPath() . $filename);
+        $filePath = $this->getDirectoryAbsPath() . $filename;
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
     }
 
     public static function getInstance()

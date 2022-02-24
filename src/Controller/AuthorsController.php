@@ -94,17 +94,15 @@ class AuthorsController extends AppController
                 $authorData = $this->request->getData();
                 $authorM = $this->Authors->findByEmail($authorData['email'])->firstOrFail();
                 $file = $authorData['change_image'];
+                unset($authorData['change_image']);
                 if ($file->getError() === UPLOAD_ERR_OK) {
                     $filename = $imageService->moveFile($file);
                     $isValid = $imageService->validateMimeType($filename);
+                    $authorData['image'] = $filename;
                     if (true === $isValid) {
                         $imageService->deleteFile($authorM->image);
-                        $authorData['image'] = $filename;
-                    } else {
-                        $imageService->deleteFile($filename);
                     }
                 }
-                unset($authorData['change_image']);
                 $author = $this->Authors->patchEntity($author, $authorData);
                 if ($this->Authors->save($author)) {
                     $this->Flash->success(__('作者の更新に成功しました'));

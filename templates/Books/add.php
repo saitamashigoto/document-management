@@ -21,6 +21,8 @@
                     echo $this->Form->control('title', ['label' => 'タイトル']);
                     echo $this->Form->control('description', ['label' => '説明']);
                     echo $this->Form->control('authors._ids', ['options' => $authors, 'label' => '作者']);
+                    echo $this->Form->file('image');
+                    echo $this->Form->error('image');
                 ?>
             </fieldset>
             <?= $this->Form->button(__('保存')) ?>

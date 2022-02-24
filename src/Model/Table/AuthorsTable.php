@@ -90,14 +90,14 @@ class AuthorsTable extends Table
         $validator
             ->add('image', 'validate_image', [
                 'rule' => function ($value, $context) use ($imageService) {
-                    $isEmpty = $imageService->validateEmptyFile($value);
-                    if (true === $isEmpty) {
+                    $isNotEmpty = $imageService->validateEmptyFile($value);
+                    if (true === $isNotEmpty) {
                         $isValid = $imageService->validateMimeType($value);
                         if (true === $isValid) {
                             return true;
                         }
                         $imageService->deleteFile($value);
-                        return $isValid;                
+                        return $isValid; 
                     }
                     return $isEmpty;
                 },

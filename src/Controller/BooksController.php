@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Event\EventInterface;
+use App\ImageServiceInterface;
 
 /**
  * Books Controller
@@ -52,12 +54,16 @@ class BooksController extends AppController
      *
      * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
      */
-    public function add()
+    public function add(ImageServiceInterface $imageService)
     {
         $book = $this->Books->newEmptyEntity();
         $this->Authorization->authorize($book);
         if ($this->request->is('post')) {
-            $book = $this->Books->patchEntity($book, $this->request->getData());
+            $bookData = $this->request->getData();
+            $file = $bookData['image'];
+            $filename = $imageService->moveFile($file);
+            $bookData['image'] = $filename;
+            $book = $this->Books->patchEntity($book, $bookData);
             if ($this->Books->save($book)) {
                 $this->Flash->success(__('書籍作成に成功しました'));
 
@@ -76,7 +82,7 @@ class BooksController extends AppController
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function edit(ImageServiceInterface $imageService, $id = null)
     {
         try {
             $book = $this->Books->get($id, [
@@ -84,7 +90,18 @@ class BooksController extends AppController
             ]);
             $this->Authorization->authorize($book);
             if ($this->request->is(['patch', 'post', 'put'])) {
-                $book = $this->Books->patchEntity($book, $this->request->getData());
+                $bookData = $this->request->getData();
+                $file = $bookData['change_image'];
+                unset($bookData['change_image']);
+                if ($file->getError() === UPLOAD_ERR_OK) {
+                    $filename = $imageService->moveFile($file);
+                    $isValid = $imageService->validateMimeType($filename);
+                    $bookData['image'] = $filename;
+                    if (true === $isValid) {
+                        $imageService->deleteFile($authorM->image);
+                    }
+                }
+                $book = $this->Books->patchEntity($book, $bookData);
                 if ($this->Books->save($book)) {
                     $this->Flash->success(__('書籍更新に成功しました'));
     

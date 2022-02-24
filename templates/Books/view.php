@@ -34,6 +34,10 @@
                     <th><?= __('講師日時') ?></th>
                     <td><?= h($book->modified) ?></td>
                 </tr>
+                <tr>
+                    <th><?= __('画像') ?></th>
+                    <td><?= $this->Html->image($book->image, array('height' => 100, 'width' => 100)) ?></td>
+                </tr>
             </table>
             <div class="text">
                 <strong><?= __('説明') ?></strong>
