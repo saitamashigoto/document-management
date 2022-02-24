@@ -19,7 +19,7 @@
     </aside>
     <div class="column-responsive column-80">
         <div class="books form content">
-            <?= $this->Form->create($book) ?>
+            <?= $this->Form->create($book, ['type' => 'file']) ?>
             <fieldset>
                 <legend><?= __('編集') ?></legend>
                 <?php

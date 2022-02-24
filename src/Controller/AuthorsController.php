@@ -126,13 +126,15 @@ class AuthorsController extends AppController
      * @return \Cake\Http\Response|null|void Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete($id = null)
+    public function delete(ImageServiceInterface $imageService, $id = null)
     {
         try {
             $this->request->allowMethod(['post', 'delete']);
             $author = $this->Authors->get($id);
             $this->Authorization->authorize($author);
+            $image = $author->image;
             if ($this->Authors->delete($author)) {
+                $imageService->deleteFile($image);
                 $this->Flash->success(__('作者の削除に成功しました'));
             } else {
                 $this->Flash->error(__('作者を削除できませんした'));

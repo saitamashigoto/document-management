@@ -98,7 +98,7 @@ class BooksController extends AppController
                     $isValid = $imageService->validateMimeType($filename);
                     $bookData['image'] = $filename;
                     if (true === $isValid) {
-                        $imageService->deleteFile($authorM->image);
+                        $imageService->deleteFile($book->image);
                     }
                 }
                 $book = $this->Books->patchEntity($book, $bookData);
@@ -124,13 +124,15 @@ class BooksController extends AppController
      * @return \Cake\Http\Response|null|void Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete($id = null)
+    public function delete(ImageServiceInterface $imageService, $id = null)
     {
         try {
             $this->request->allowMethod(['post', 'delete']);
             $book = $this->Books->get($id);
             $this->Authorization->authorize($book);
+            $image = $book->image;
             if ($this->Books->delete($book)) {
+                $imageService->deleteFile($image);
                 $this->Flash->success(__('書籍の削除に成功しました'));
             } else {
                 $this->Flash->error(__('書籍を削除できませんでした'));

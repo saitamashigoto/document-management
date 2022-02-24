@@ -52,7 +52,7 @@ class ImageService implements ImageServiceInterface
     public function deleteFile(string $filename)
     {
         $filePath = $this->getDirectoryAbsPath() . $filename;
-        if (file_exists($filePath)) {
+        if (is_file($filePath) && file_exists($filePath)) {
             unlink($filePath);
         }
     }

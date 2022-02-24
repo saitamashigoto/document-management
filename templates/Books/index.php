@@ -12,6 +12,7 @@
             <thead>
                 <tr>
                     <th><?= $this->Paginator->sort('title', 'タイトル') ?></th>
+                    <th><?= $this->Paginator->sort('image', '画像') ?></th>
                     <th><?= $this->Paginator->sort('created', '作成日時') ?></th>
                     <th><?= $this->Paginator->sort('modified', '更新日時') ?></th>
                     <th class="actions"><?= __('アクション') ?></th>
@@ -21,6 +22,7 @@
                 <?php foreach ($books as $book): ?>
                 <tr>
                     <td><?= h($book->title) ?></td>
+                    <td><?= $this->Html->image($book->image, array('height' => 100, 'width' => 100)) ?></td>
                     <td><?= h($book->created) ?></td>
                     <td><?= h($book->modified) ?></td>
                     <td class="actions">
