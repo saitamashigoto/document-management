@@ -98,7 +98,7 @@ class UsersController extends AppController
             if ($this->Users->save($user)) {
                 $this->Flash->success(__('新規作成が完了しました'));
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'login']);
             }
             $this->Flash->error(__('新しいユーザを保存できませんでした'));
         }
@@ -152,6 +152,7 @@ class UsersController extends AppController
             $user = $this->Users->get($id);
             $this->Authorization->authorize($user);
             if ($this->Users->delete($user)) {
+                $this->Authentication->logout();
                 $this->Flash->success(__('ユーザの削除に成功しました'));
             } else {
                 $this->Flash->error(__('ユーザを削除できませんした'));
