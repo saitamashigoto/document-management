@@ -1,0 +1,8 @@
+１・config/app_local.phpファイルにデータベース接続情報を入力してください。
+２・プロジェクトのルートダイレクトリーに入ってcomposer installを実行してください。
+３・引き続いて同ディレクトリーに bin/cake migrations migrateを実行してください
+４・次にbin/cake server -p 8765を実行してください。
+５・ブラウザーのURLバーにlocalhost:8765/を入力して押してください。
+６・以上です。
+
+
