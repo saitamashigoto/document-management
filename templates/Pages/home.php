@@ -61,11 +61,13 @@ $cakeDescription = '書籍管理システム';
 
     <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
 
+    
     <?= $this->Html->css(['normalize.min', 'milligram.min', 'cake', 'home']) ?>
-
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
     <?= $this->fetch('script') ?>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://unpkg.com/vue@3"></script>
 </head>
 <body>
     <header>
@@ -82,18 +84,64 @@ $cakeDescription = '書籍管理システム';
             <div class="content">
                 <div class="row">
                     <div class="column">
-                        <?php if (!$isAuthenticated): ?>
-                            <h2 class="text-center"><?= $this->Html->link('管理者ログイン', ['action' => 'login', 'controller' => 'Users'], ['class' => 'header-link']) ?></h2>
-                        <?php else: ?>
-                            <h2 class="text-center"><?= $this->Html->link('ユーザ一覧', ['action' => 'index', 'controller' => 'Users'], ['class' => 'header-link']) ?></h2>
-                        <?php endif; ?>
-                        <h2 class="text-center"><?= $this->Html->link('作者管理', ['action' => 'index', 'controller' => 'Authors'], ['class' => 'header-link']) ?></h2>
-                        <h2 class="text-center"><?= $this->Html->link('書籍管理', ['action' => 'index', 'controller' => 'Books'], ['class' => 'header-link']) ?></h2>
-                        <?php Debugger::checkSecurityKeys(); ?>
+                        <h2 class="text-center">統計</h2>
+                        <div class="chart">
+                            
+                        </div>
                     </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="column">
+                        <h2 class="navigation-btn text-center"><?= $this->Html->link('作者管理', ['action' => 'index', 'controller' => 'Authors'], ['class' => 'header-link']) ?></h2>
+                    </div>
+                    <div class="column">
+                        <?php if (!$isAuthenticated): ?>
+                            <h2 class="navigation-btn text-center"><?= $this->Html->link('管理者ログイン', ['action' => 'login', 'controller' => 'Users'], ['class' => 'header-link']) ?></h2>
+                        <?php else: ?>
+                            <h2 class="navigation-btn text-center"><?= $this->Html->link('ユーザ一覧', ['action' => 'index', 'controller' => 'Users'], ['class' => 'header-link']) ?></h2>
+                        <?php endif; ?>
+                    </div>
+                    <div class="column">
+                        <h2 class="navigation-btn text-center"><?= $this->Html->link('書籍管理', ['action' => 'index', 'controller' => 'Books'], ['class' => 'header-link']) ?></h2>
+                    </div>
+                    <?php Debugger::checkSecurityKeys(); ?>
                 </div>
             </div>
         </div>
     </main>
+    <script>
+        const chartsUrl = '<?= $chartsUrl ?>';
+        Vue.createApp({
+            data() {
+                return {
+                    chartsData: null
+                }
+            },
+            methods: {
+                async renderChart() {
+                    this.chartsData = null;
+                    const res = await fetch(chartsUrl);
+                    this.chartsData = (await res.json()).monthlyStats;
+                    google.charts.load('current', {'packages':['corechart']});
+                    google.charts.setOnLoadCallback(this.drawChart);
+                },
+                async drawChart() {
+                    const data = google.visualization.arrayToDataTable(this.chartsData);
+                    const options = {
+                        title: '今月の統計',
+                        curveType: 'function',
+                        legend: { position: 'bottom' }
+                    };
+                    const chart = new google.visualization
+                        .LineChart(document.querySelector('.chart'));
+                    chart.draw(data, options);
+                }
+            },
+            mounted() {
+                this.renderChart();
+            }
+        }).mount('.chart');
+    </script>
 </body>
 </html>

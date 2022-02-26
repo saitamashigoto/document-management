@@ -82,3 +82,8 @@ hr {
 .text-center {
     text-align: center;
 }
+
+.navigation-btn {
+    border: 1px solid #dad3d3;
+    border-radius: 10px;
+}

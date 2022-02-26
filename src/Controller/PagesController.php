@@ -21,6 +21,7 @@ use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Response;
 use Cake\View\Exception\MissingTemplateException;
+use Cake\Routing\Router;
 
 /**
  * Static content controller
@@ -60,7 +61,14 @@ class PagesController extends AppController
         if (!empty($path[1])) {
             $subpage = $path[1];
         }
-        $this->set(compact('page', 'subpage'));
+
+        $chartsUrl = Router::url([
+            'controller' => 'Charts',
+            'action' => 'index',
+        ]);
+        $chartsUrl .= '.json';
+        $this->set(compact('page', 'subpage', 'chartsUrl'));
+
 
         try {
             return $this->render(implode('/', $path));
