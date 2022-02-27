@@ -63,11 +63,10 @@ $cakeDescription = '書籍管理システム';
 
     
     <?= $this->Html->css(['normalize.min', 'milligram.min', 'cake', 'home']) ?>
+    <?= $this->Html->script(['chart', 'vue']) ?>
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
     <?= $this->fetch('script') ?>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script src="https://unpkg.com/vue@3"></script>
 </head>
 <body>
     <header>
@@ -112,6 +111,11 @@ $cakeDescription = '書籍管理システム';
     </main>
     <script>
         const chartsUrl = '<?= $chartsUrl ?>';
+        const chartElement = document.querySelector('.chart');
+        const chartErrorParagraph = document.createElement('p');
+        chartErrorParagraph.textContent = '今月のユーザ、書籍、作者のバーグラフ';
+        chartErrorParagraph.classList.add('text-center');
+
         Vue.createApp({
             data() {
                 return {
@@ -121,10 +125,17 @@ $cakeDescription = '書籍管理システム';
             methods: {
                 async renderChart() {
                     this.chartsData = null;
-                    const res = await fetch(chartsUrl);
-                    this.chartsData = (await res.json()).monthlyStats;
-                    google.charts.load('current', {'packages':['corechart']});
-                    google.charts.setOnLoadCallback(this.drawChart);
+                    try {
+                        while (chartElement.firstChild) {
+                            chartElement.removeChild(chartElement.firstChild);
+                        }
+                        const res = await fetch(chartsUrl);
+                        this.chartsData = (await res.json()).monthlyStats;
+                        google.charts.load('current', {'packages':['corechart']});
+                        google.charts.setOnLoadCallback(this.drawChart);
+                    } catch (e) {
+                        chartElement.appendChild(chartErrorParagraph);
+                    }
                 },
                 async drawChart() {
                     const data = google.visualization.arrayToDataTable(this.chartsData);
@@ -134,7 +145,7 @@ $cakeDescription = '書籍管理システム';
                         legend: { position: 'bottom' }
                     };
                     const chart = new google.visualization
-                        .LineChart(document.querySelector('.chart'));
+                        .LineChart(chartElement);
                     chart.draw(data, options);
                 }
             },
